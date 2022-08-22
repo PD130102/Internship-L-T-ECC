@@ -26,7 +26,7 @@ internal class Program
             connection.Open();
             for (int x = 1; x < 3; x++)
             {
-                sql1 = "Select companyName from Company where companyCode =" + x + ";";
+                sql1 = "Select companyCode,companyName from Company where companyCode =" + x + ";";
                 sql2 = "Select sectorID,sectorName,sectorDescription FROM Sector where companyCode=" + x + ";";
 
                 CompanyAPI companyAPI = new CompanyAPI();
@@ -35,44 +35,50 @@ internal class Program
                 dr1 = cmd1.ExecuteReader();
                 while (dr1.Read())
                 {
-                    companyAPI.CompanyCode = x;
-                    companyAPI.CompanyName = dr1.GetString(0);
+                    companyAPI.CompanyCode = dr1.GetInt32(0);
+                    companyAPI.CompanyName = dr1.GetString(1);
                 }
                 dr1.Close();
-                cmd1?.Dispose();
+                cmd1.Dispose();
                 
 
                 cmd2 = new SqlCommand(sql2, connection);
                 dr2 = cmd2.ExecuteReader();
-                List<Sector> listsectors = new List<Sector>();
-                while(dr2.Read())
+                List<Sector> listsectors = new();
+                while (dr2.Read())
                 {
-                    for(int y = 1; y < 3; y++)
-                    {
-                        Sector sector = new Sector();
-                        sector.SectorID = dr2.GetInt32(0);
-                        sector.SectorName = dr2.GetString(1);
-                        sector.SectorDescription = dr2.GetString(2);
-                        /*  sql3 = "Select materialName from Materials where SectorID= " + y +";";
-                          sql4 = "Select skillName from Skills where SectorID= " + y +  ";";
-                          sql5 = "Select projectName from Projects where SectorID= " + y +  ";";
-                          sql6 = "Select factorName from Factors where SectorID= " + y +  ";";
-                          sql7 = "Select attributeName from Attributes where SectorID= " + y + ";";*/
+                    
+                        Sector sector = new()
+                        {
+                            SectorID = dr2.GetInt32(0),
+                            SectorName = dr2.GetString(1),
+                            SectorDescription = dr2.GetString(2)
+                        };
 
-                        sql3 = "Select materialName from Materials,Company where Materials.SectorID= " + y + " and Company.companyCode=" + x + ";";
-                        sql4 = "Select skillName from Skills,Company where Skills.SectorID= " + y + " and Company.companyCode=" + x + ";";
-                        sql5 = "Select projectName from Projects,Company where Projects.SectorID= " + y + " and Company.companyCode=" + x + ";";
-                        sql6 = "Select factorName from Factors,Company where Factors.SectorID= " + y + " and Company.companyCode=" + x + ";";
-                        sql7 = "Select attributeName from Attributes,Company where Attributes.SectorID= " + y + " and Company.companyCode=" + x + ";";
+                        sql3 = "Select materialName from Materials where SectorID= " + sector.SectorID + " and CompanyCode = " + x + "; ";
+                        sql4 = "Select skillName from Skills where SectorID= " + sector.SectorID + " and CompanyCode = " + x + ";";
+                        sql5 = "Select projectName from Projects where SectorID= " + sector.SectorID + " and CompanyCode = " + x + ";";
+                        sql6 = "Select factorName from Factors where SectorID= " + sector.SectorID + " and CompanyCode = " + x + ";";
+                        sql7 = "Select attributeName from Attributes where SectorID= " + sector.SectorID + " and CompanyCode = " + x + ";";
+
+                       /* sql3 = "Select materialName from Materials,Company,Sector where Materials.SectorID= " + y + "and Materials.SectorID = Sector.sectorID and  Materials.CompanyCode = Company.companyCode and Company.companyCode=" + x + ";";
+                        sql4 = "Select skillName from Skills,Company,Sector where Skills.SectorID= " + y + "and Skills.SectorID = Sector.sectorID and Skills.CompanyCode = Company.companyCode and Company.companyCode=" + x + ";";
+                        sql5 = "Select projectName from Projects,Company,Sector where Projects.SectorID= " + y + "and Projects.SectorID = Sector.sectorID and  Projects.CompanyCode = Company.companyCode and Company.companyCode=" + x + ";";
+                        sql6 = "Select factorName from Factors,Company,Sector where Factors.SectorID= " + y + "and Factors.SectorID = Sector.sectorID and Factors.CompanyCode = Company.companyCode and Company.companyCode=" + x + ";";
+                        sql7 = "Select attributeName from Attributes,Company,Sector where Attributes.SectorID= " + y + "and Attributes.SectorID = Sector.sectorID and Attributes.CompanyCode = Company.companyCode and Company.companyCode=" + x + ";";*/
+
                         // Materials
                         cmd3 = new SqlCommand(sql3, connection);
                         dr3 = cmd3.ExecuteReader();
                         List<string> materials = new List<string>();
-                        while (!dr3.Read())
+                        while (dr3.Read())
                         {
                             materials.Add(dr3.GetString(0));
                         }
-                        sector.Materials = materials;
+                        if (materials.Count > 0)
+                        {
+                            sector.Materials = materials;
+                        }
                         dr3.Close();
                         cmd3.Dispose();
 
@@ -84,19 +90,25 @@ internal class Program
                         {
                             skills.Add(dr4.GetString(0));
                         }
-                        sector.Skills = skills;
+                        if (skills.Count > 0)
+                        {
+                            sector.Skills = skills;
+                        }
                         dr4.Close();
                         cmd4.Dispose();
 
                         // Projects
                         cmd5 = new SqlCommand(sql5, connection);
                         dr5 = cmd5.ExecuteReader();
-                        List<string> projects  = new List<string>();
-                        while(dr5.Read())
+                        List<string> projects = new List<string>();
+                        while (dr5.Read())
                         {
                             projects.Add(dr5.GetString(0));
                         }
-                        sector.Projects = projects;
+                        if (projects.Count > 0)
+                        {
+                            sector.Projects = projects;
+                        }
                         dr5.Close();
                         cmd5.Dispose();
 
@@ -108,7 +120,10 @@ internal class Program
                         {
                             factors.Add(dr6.GetString(0));
                         }
-                        sector.Atributes = factors;
+                        if(factors.Count > 0)
+                        {
+                            sector.Factors = factors;
+                        }
                         dr6.Close();
                         cmd6.Dispose();
 
@@ -120,11 +135,22 @@ internal class Program
                         {
                             attributes.Add(dr7.GetString(0));
                         }
-                        sector.Atributes = attributes;
+                        if(attributes.Count > 0)
+                        {
+                            sector.Atributes = attributes;
+                        }
                         dr7.Close();
                         cmd7.Dispose();
-                        listsectors.Add(sector);
-                    }
+
+                        if(sector.Projects !=null && sector.Atributes != null && sector.Factors != null && sector.Materials != null && sector.Skills != null)
+                        {
+                            listsectors.Add(sector);
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    
                 }
                 dr2.Close();
                 cmd2.Dispose();
