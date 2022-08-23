@@ -2,18 +2,17 @@ using System.Data.SqlClient;
 using Internship.Models;
 using Internship.Services;
 internal class Program
-{
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="args"></param>
+{ 
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        // Add services to the container.
+
+          builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
+        {
+            builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+        }));
 
         builder.Services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -205,6 +204,8 @@ internal class Program
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
+
+        app.UseCors("corsapp");
 
         app.MapControllers();
 
