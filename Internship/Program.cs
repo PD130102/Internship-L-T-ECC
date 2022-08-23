@@ -20,7 +20,7 @@ internal class Program
         var app = builder.Build();
         string? connectionstring = null;
         
-        connectionstring = "Server=(localdb)\\MSSQLLocalDB;Database=SampleDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+        connectionstring = "Server=localhost;Database=SampleDB;Trusted_Connection=True;MultipleActiveResultSets=true;";
         SqlConnection connection;
         SqlCommand cmd1, cmd2, cmd3, cmd4,cmd5,cmd6,cmd7;
         string? sql1, sql2, sql3, sql4,sql5,sql6,sql7,sql8,sql9;
